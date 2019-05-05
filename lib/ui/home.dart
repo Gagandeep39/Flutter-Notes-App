@@ -13,7 +13,7 @@ class Home extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text("To-Do App"),
-        backgroundColor: Colors.black38,
+        backgroundColor: Colors.black54,
         centerTitle: true,
       ),
       body: NotesScreen() ,

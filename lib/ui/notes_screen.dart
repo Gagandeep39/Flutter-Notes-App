@@ -113,6 +113,7 @@ class _NotesScreenState extends State<NotesScreen> {
       NotesItem addedItem = await dbClient.getNote(savedItdId);
       setState(() {
         _itemList.insert(0, addedItem);
+        showSnackBar("Inserted: ", text);
       });
       _notesInputController.text = "";
     }
@@ -129,10 +130,24 @@ class _NotesScreenState extends State<NotesScreen> {
   }
 
   void _deleteData(int id, int index) async {
-    print("Deleted ${_itemList[index].itemName}");
+    String name = _itemList[index].itemName;
     await dbClient.deleteNote(id);
     setState(() {
       _itemList.removeAt(index);
+      showSnackBar("Deleted: ", name);
     });
+  }
+
+
+  void showSnackBar(String operation, String name) {
+    Scaffold.of(context).showSnackBar(new SnackBar(
+      content: new Text('$operation $name'),
+      duration: new Duration(seconds: 2),
+      action: new SnackBarAction(label: 'Ok',
+        onPressed: () {
+          Navigator.pop(context);
+        },
+      ),
+    ));
   }
 }
