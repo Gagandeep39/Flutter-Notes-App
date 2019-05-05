@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 class NotesItem extends StatelessWidget {
   String _itemName;
   String _dateCreated;
-  String _id;
+  int _id;
 
   NotesItem(this._itemName, this._dateCreated);
 
@@ -24,7 +24,7 @@ class NotesItem extends StatelessWidget {
 
   String get dateCreated => _dateCreated;
 
-  String get id => _id;
+  int get id => _id;
 
   Map<String, dynamic> toMap() {
     //to make a map of current object
@@ -46,9 +46,10 @@ class NotesItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+
       margin: EdgeInsets.all(8.0),
       child:
-      Row(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+      Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
         Text(
           "$_itemName",
           style: TextStyle(

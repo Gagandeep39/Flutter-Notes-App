@@ -16,9 +16,9 @@ class DatabaseHelper{
   static final DatabaseHelper _instance = DatabaseHelper.internal();
 factory DatabaseHelper() => _instance;
   final table = "notesTable";
-final columnId = "id";
-final columnItemName = "item_name";
-final columnCreatedOn = "created_on";
+  final columnId = "id"; //Must be same has "Key" names of May in NotesItem class
+  final columnItemName = "itemName";
+  final columnCreatedOn = "dateCreated";
   static Database _db;
 
 
@@ -39,7 +39,8 @@ final columnCreatedOn = "created_on";
   }
 
   void _onCreate(Database db, int version) async{
-    await db.execute("CREATE TABLE $table ($columnId INTEGER PRIMARY KEY, $columnItemName TEXT, $columnCreatedOn DATETIME)");
+    await db.execute(
+      "CREATE TABLE $table ($columnId INTEGER PRIMARY KEY, $columnItemName TEXT, $columnCreatedOn TEXT)");
   }
 
 

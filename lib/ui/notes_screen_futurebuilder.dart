@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_notes_app/model/notes_item.dart';
 import 'package:flutter_notes_app/util/database_helper.dart';
@@ -6,7 +5,7 @@ import 'package:flutter_notes_app/util/database_helper.dart';
 ///Created on Android Studio Canary Version
 ///User: Gagandeep
 ///Date: 05-05-2019
-///Time: 10:32
+///Time: 14:42
 ///Project Name: flutter_notes_app
 
 class NotesScreen extends StatefulWidget {
@@ -17,43 +16,41 @@ class NotesScreen extends StatefulWidget {
 class _NotesScreenState extends State<NotesScreen> {
   final _notesInputController = TextEditingController();
   var dbClient = DatabaseHelper();
-  final List<NotesItem> _itemList = <NotesItem>[];
-
-  @override
-  void initState() {
-    super.initState();
-    _readAllNotes();
-  }
+  List<NotesItem> _notesList = <NotesItem>[];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black87,
-      body: Column(
-        children: <Widget>[
-          Flexible(
-            child: ListView.builder(
-              padding: EdgeInsets.all(8.0),
-              reverse: false,
-              itemCount: _itemList.length,
-              itemBuilder: (BuildContext context, int index) {
-                return Card(
-                  color: Colors.white10,
-                  child: ListTile(
-                    //****************this is where the Item layout widget is returned***************//
-                    title: _itemList[index],
-                    onLongPress: () {},
-                    trailing: new Listener(
-                      key: new Key(_itemList[index].itemName),
-                      child: new Icon(
-                        Icons.remove_circle,
-                        color: Colors.redAccent,
+      backgroundColor: Colors.black,
+      body: FutureBuilder(
+          future: _readAllNotes(),
+          builder: (BuildContext context, AsyncSnapshot snapshot) {
+            if (!snapshot.hasData)
+              return Text("");
+            else {
+              List _item = snapshot.data;
+              int size = _item.length;
+              return ListView.builder(
+                itemCount: size,
+                itemBuilder: (BuildContext context, int index) {
+                  return Card(
+                    child: ListTile(
+                      title: Text("${_item[index]['itemName']}"),
+                      onLongPress: () {},
+                      trailing: Listener(
+                        key: Key(_item[index]['itemName']),
+                        child: Icon(
+                          Icons.remove_circle,
+                          color: Colors.red,
+                        ),
+                        onPointerDown: (pointerEvent) => debugPrint(""),
                       ),
-                      onPointerDown: (pointerEvent) {})));
-              },
-            ))
-        ],
-      ),
+                    ),
+                  );
+                },
+              );
+            }
+          }),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           _showFormDialog();
@@ -73,9 +70,9 @@ class _NotesScreenState extends State<NotesScreen> {
               controller: _notesInputController,
               autofocus: true,
               decoration: InputDecoration(
-                labelText: "Add note",
-                hintText: "eg. Call Abby",
-                icon: Icon(Icons.note_add)),
+                  labelText: "Add note",
+                  hintText: "eg. Call Abby",
+                  icon: Icon(Icons.note_add)),
             ),
           )
         ],
@@ -99,10 +96,10 @@ class _NotesScreenState extends State<NotesScreen> {
     );
 
     showDialog(
-      context: context,
-      builder: (_) {
-        return alert;
-      });
+        context: context,
+        builder: (_) {
+          return alert;
+        });
   }
 
   void _saveData(String text) async {
@@ -112,19 +109,15 @@ class _NotesScreenState extends State<NotesScreen> {
       NotesItem addedItem = await dbClient.getNote(savedItdId);
       setState(() {
         print("${addedItem.toString()}");
-        _itemList.insert(0, addedItem);
+//        _notesList.insert(0, addedItem);
       });
       _notesInputController.text = "";
     }
     Navigator.pop(context);
   }
 
-  _readAllNotes() async {
+  Future<List> _readAllNotes() async {
     List items = await dbClient.getAllItems();
-    items.forEach((item) {
-      setState(() {
-        _itemList.add(NotesItem.map(item));
-      });
-    });
+    return items;
   }
 }
