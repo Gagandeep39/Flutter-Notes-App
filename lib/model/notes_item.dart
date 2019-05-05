@@ -32,7 +32,7 @@ class NotesItem extends StatelessWidget {
     map['itemName'] = _itemName;
     map['dateCreated'] = _dateCreated;
 
-    if (_id != null) map['itemId'] = _id;
+    if (_id != null) map['id'] = _id;
     return map;
   }
 

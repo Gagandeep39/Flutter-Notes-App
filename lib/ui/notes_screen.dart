@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_notes_app/model/notes_item.dart';
 import 'package:flutter_notes_app/util/database_helper.dart';
+import 'package:flutter_notes_app/util/date_formatter.dart';
 
 ///Created on Android Studio Canary Version
 ///User: Gagandeep
@@ -15,6 +16,7 @@ class NotesScreen extends StatefulWidget {
 
 class _NotesScreenState extends State<NotesScreen> {
   final _notesInputController = TextEditingController();
+  final _updateNoteController = TextEditingController();
   var dbClient = DatabaseHelper();
   final List<NotesItem> _itemList = <NotesItem>[];
 
@@ -41,7 +43,9 @@ class _NotesScreenState extends State<NotesScreen> {
                   child: ListTile(
                     //****************this is where the Item layout widget is returned***************//
                     title: _itemList[index],
-                    onLongPress: () {},
+                    onLongPress: () {
+                      _updateData(_itemList[index].id, index);
+                    },
                     trailing: new Listener(
                       key: new Key(_itemList[index].itemName),
                       child: new Icon(
@@ -108,11 +112,11 @@ class _NotesScreenState extends State<NotesScreen> {
 
   void _saveData(String text) async {
     if (text != null && text != "") {
-      NotesItem notes = new NotesItem(text, DateTime.now().toIso8601String());
+      NotesItem notes = new NotesItem(text, dateFormatted());
       int savedItdId = await dbClient.saveItem(notes);
       NotesItem addedItem = await dbClient.getNote(savedItdId);
       setState(() {
-        _itemList.insert(0, addedItem);
+        _itemList.insert(_itemList.length, addedItem);
         showSnackBar(context, "Inserted: ", text);
       });
       _notesInputController.text = "";
@@ -148,5 +152,66 @@ class _NotesScreenState extends State<NotesScreen> {
         },
       ),
     ));
+  }
+
+  void _updateData(int id, int index) {
+    var alert = AlertDialog(
+      title: Text("Update item name"),
+      content: Row(
+        children: <Widget>[
+          Expanded(child: TextField(
+            autofocus: true,
+            controller: _updateNoteController,
+            decoration: InputDecoration(
+              icon: Icon(Icons.update),
+              labelText: "Update Note",
+              hintText: "eg. Buy a Book"
+            ),
+          ),
+
+          )
+        ],
+      ),
+      actions: <Widget>[
+
+        RaisedButton(
+          onPressed: () {
+            _updateDatabase(_updateNoteController.text, id, index);
+            Navigator.pop(context);
+          },
+          child: Text("Update"),
+          textColor: Colors.white,
+          color: Colors.red,
+        ),
+        FlatButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: Text("Cancel"),
+        )
+      ],
+    );
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      });
+  }
+
+  void _updateDatabase(String text, int id, int index) async {
+    NotesItem item = new NotesItem.fromMap(
+      {
+        "id": id, "itemName": "$text", "dateCreated": dateFormatted()
+      }
+    );
+    int resutl = await dbClient.updateNote(item);
+    print("Result: $resutl $text");
+    if (resutl > 0)
+      setState(() {
+        _updateNoteController.text = "";
+        _itemList.clear();
+        _readAllNotes();
+      });
   }
 }
