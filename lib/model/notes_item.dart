@@ -63,7 +63,8 @@ class NotesItem extends StatelessWidget {
               fontSize: 13.6,
               fontStyle: FontStyle.italic)),
         )
-      ]),
+      ],
+      )
     );
   }
 }
