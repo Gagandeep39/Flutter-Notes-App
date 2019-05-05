@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_notes_app/model/notes_item.dart';
 import 'package:flutter_notes_app/util/database_helper.dart';
@@ -49,7 +48,9 @@ class _NotesScreenState extends State<NotesScreen> {
                         Icons.remove_circle,
                         color: Colors.redAccent,
                       ),
-                      onPointerDown: (pointerEvent) {})));
+                      onPointerDown: (pointerEvent) {
+                        _deleteData(_itemList[index].id, index);
+                      })));
               },
             ))
         ],
@@ -100,7 +101,7 @@ class _NotesScreenState extends State<NotesScreen> {
 
     showDialog(
       context: context,
-      builder: (_) {
+      builder: (BuildContext context) {
         return alert;
       });
   }
@@ -111,7 +112,6 @@ class _NotesScreenState extends State<NotesScreen> {
       int savedItdId = await dbClient.saveItem(notes);
       NotesItem addedItem = await dbClient.getNote(savedItdId);
       setState(() {
-        print("${addedItem.toString()}");
         _itemList.insert(0, addedItem);
       });
       _notesInputController.text = "";
@@ -125,6 +125,14 @@ class _NotesScreenState extends State<NotesScreen> {
       setState(() {
         _itemList.add(NotesItem.map(item));
       });
+    });
+  }
+
+  void _deleteData(int id, int index) async {
+    print("Deleted ${_itemList[index].itemName}");
+    await dbClient.deleteNote(id);
+    setState(() {
+      _itemList.removeAt(index);
     });
   }
 }
