@@ -34,6 +34,7 @@ class _NotesScreenState extends State<NotesScreen> {
         children: <Widget>[
           Flexible(
             child: ListView.builder(
+              physics: BouncingScrollPhysics(),
               padding: EdgeInsets.all(8.0),
               reverse: false,
               itemCount: _itemList.length,
@@ -117,7 +118,7 @@ class _NotesScreenState extends State<NotesScreen> {
       NotesItem addedItem = await dbClient.getNote(savedItdId);
       setState(() {
         _itemList.insert(_itemList.length, addedItem);
-        showSnackBar(context, "Inserted: ", text);
+//        showSnackBar(context, "Inserted: ", text);
       });
       _notesInputController.text = "";
     }
@@ -138,18 +139,17 @@ class _NotesScreenState extends State<NotesScreen> {
     await dbClient.deleteNote(id);
     setState(() {
       _itemList.removeAt(index);
-      showSnackBar(context, "Deleted: ", name);
+//      showSnackBar(context, "Deleted: ", name);
     });
   }
-
 
   void showSnackBar(BuildContext contex, String operation, String name) {
     Scaffold.of(contex).showSnackBar(SnackBar(
       content: new Text('$operation $name'),
       duration: new Duration(seconds: 5),
-      action: new SnackBarAction(label: 'Ok',
-        onPressed: () {
-        },
+      action: new SnackBarAction(
+        label: 'Ok',
+        onPressed: () {},
       ),
     ));
   }
@@ -159,24 +159,24 @@ class _NotesScreenState extends State<NotesScreen> {
       title: Text("Update item name"),
       content: Row(
         children: <Widget>[
-          Expanded(child: TextField(
-            autofocus: true,
-            controller: _updateNoteController,
-            decoration: InputDecoration(
-              icon: Icon(Icons.update),
-              labelText: "Update Note",
-              hintText: "eg. Buy a Book"
+          Expanded(
+            child: TextField(
+              autofocus: true,
+              controller: _updateNoteController,
+              decoration: InputDecoration(
+                icon: Icon(Icons.update),
+                labelText: "Update Note",
+                hintText: "eg. Buy a Book"),
             ),
-          ),
-
           )
         ],
       ),
       actions: <Widget>[
-
         RaisedButton(
           onPressed: () {
             _updateDatabase(_updateNoteController.text, id, index);
+
+            _updateNoteController.text = "";
             Navigator.pop(context);
           },
           child: Text("Update"),
@@ -201,15 +201,11 @@ class _NotesScreenState extends State<NotesScreen> {
 
   void _updateDatabase(String text, int id, int index) async {
     NotesItem item = new NotesItem.fromMap(
-      {
-        "id": id, "itemName": "$text", "dateCreated": dateFormatted()
-      }
-    );
+      {"id": id, "itemName": "$text", "dateCreated": dateFormatted()});
     int resutl = await dbClient.updateNote(item);
     print("Result: $resutl $text");
     if (resutl > 0)
       setState(() {
-        _updateNoteController.text = "";
         _itemList.clear();
         _readAllNotes();
       });
